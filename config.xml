@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config>
+    <defaults>
+        <output>
+            <extention>json</extention>
+            <path>sample/output</path>
+        </output>
+    </defaults>
+    <source>
+        <file name="SampleGame" outputPath="sample/output" extention="json">
+            <sheet name="Monsters"></sheet>
+            <sheet name="Weapons" ></sheet>
+        </file>
+        <file name="SampleData">
+            <sheet name="SimpleTest" outputPath="sample"></sheet>
+            <sheet name="UseExcelFeatures" extention=".txt"></sheet>
+        </file>
+        
+    </source>
+</config>
