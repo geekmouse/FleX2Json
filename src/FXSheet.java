@@ -117,6 +117,9 @@ public class FXSheet {
 				Row thisRow=sheetXls.getRow(i);
 				JSONObject lineJsonObject=new JSONObject();
 				for(int j=0;j<numColumns;j++){
+					if (j==9) {
+						FXTools.LOGGER.fine("..");
+					}
 					String l_columnString=FXTools.xlsColumnStringFromIndex(j);
 					String l_namePropString=getCellValueString(rowName.getCell(j));
 					String l_valuePropString=getCellValueString(thisRow.getCell(j));
@@ -125,14 +128,16 @@ public class FXSheet {
 					FXTools.LOGGER.finer("Column:"+l_columnString+"..."+getCellValueString(rowDesp.getCell(j))+":"+getCellValueString(rowName.getCell(j)));
 					
 					char thisType='N';
-					String typeString=rowType.getCell(j).getStringCellValue();
-					if (typeString.length()!=0) {
-						thisType=typeString.charAt(0);
+					Cell typeCell=rowType.getCell(j);
+					if (typeCell==null || typeCell.getCellType()==Cell.CELL_TYPE_BLANK) {
+						FXTools.LOGGER.warning("The value type of column "+l_columnString+" is not assigned. Use the default type 'string'");
+						thisType='s';
 					}
 					else{
-						FXTools.LOGGER.warning("The value type of column "+l_columnString+" is not assigned.");
-						
+						String typeString=typeCell.getStringCellValue();
+						thisType=typeString.charAt(0);
 					}
+					
 					
 					switch (thisType) {
 					
@@ -234,7 +239,7 @@ public class FXSheet {
 					//----Not to convert columns---
 					case 'N':	
 					case 'n':
-
+						break;
 					default:
 						break;
 					}			
@@ -249,8 +254,6 @@ public class FXSheet {
 			FXTools.LOGGER.fine("======================================");
 			return true;
 		}
-		
-		
 	}
 	
 	public void WriteJson(JSONArray sheetArray,String outputName){

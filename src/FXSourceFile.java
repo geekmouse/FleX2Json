@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -45,22 +46,28 @@ public class FXSourceFile {
 	}
 	
 	public Boolean convert(){
-		POIFSFileSystem fs;
-		try {
-			fs = new POIFSFileSystem(new FileInputStream(mFileNameString));
-			HSSFWorkbook wb=new HSSFWorkbook(fs);
-			for (FXSheet sheet : mSheetsList) {
-				Boolean resultBoolean = sheet.convert(wb);
-				if (!resultBoolean) {
-					//return false;
+		File file=new File(mFileNameString);
+		if (file.exists()) {
+			POIFSFileSystem fs;
+			try {
+				fs = new POIFSFileSystem(new FileInputStream(mFileNameString));
+				HSSFWorkbook wb=new HSSFWorkbook(fs);
+				for (FXSheet sheet : mSheetsList) {
+					Boolean resultBoolean = sheet.convert(wb);
+					if (!resultBoolean) {
+						//return false;
+					}
 				}
+				return true;
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
 			}
-			return true;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
+		}
+		else{
+			FXTools.LOGGER.warning("File: "+ mFileNameString+ " does not existed");
 			return false;
 		}
-		
 	}
 }

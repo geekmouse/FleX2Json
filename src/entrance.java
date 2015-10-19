@@ -21,9 +21,15 @@ public class entrance {
 	public static String mDefaultOutputPath;
 	public static String mDefaultOutputExt;
 	
+	
+	public static String version(){return "0.9";}
+	public static String CopyrightString(){return "Copyright (c) 2013-2015 GeekMouse Game\nCopyright (c) 2015 Liqing Pan\n";}
+	
+	
 	public static void main(String[] args){
 		FXTools.init();
-		FXTools.LOGGER.fine("=====FleX2Json ver."+version()+"=====");
+		FXTools.LOGGER.fine("=====FleX2Json ver "+version()+"=====");
+		FXTools.LOGGER.fine(CopyrightString());
 		FXTools.LOGGER.fine("Current path:"+System.getProperty("user.dir"));
 		processConvert();
 	}
@@ -57,7 +63,7 @@ public class entrance {
 					Element fileNode=(Element) fileList.item(i);
 					FXSourceFile sourceFile=new FXSourceFile(fileNode);
 					Boolean result=sourceFile.convert();
-					if (!result) {
+					if (false/*!result*/) {
 						FXTools.LOGGER.warning("converting abort in file:"+fileNode.getAttribute("name"));
 						return;
 					}
@@ -80,11 +86,7 @@ public class entrance {
 	}
 	
 	
-	public static String version(){
-		return "20151015";
-	}
 	
-	public static String CopyrightString(){
-		return "";
-	}
+	
+	
 }
