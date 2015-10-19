@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <!-- All comments in this file are based on Linux/Mac systems. Windows users please use '\' instead of '/' for paths -->
-<!-- Using or ignoring '.' in extention related configs are supported -->
+<!-- Using or ignoring '.' in extension related configs are supported -->
 <!-- Using or ignoring '/' in end of paths related configs are supported -->
 <config>
     <defaults><!-- Default config for all sources. You can modify the values but don't remove any element -->
         <output><!-- Default config for output files-->
-            <extention>.json</extention> <!-- Default output file extentions. eg. 'json','.json','txt', etc.-->
+            <extension>.json</extension> <!-- Default output file extensions. eg. 'json','.json','txt', etc.-->
             <path>sample/output</path><!-- Default ouput path. eg. 'ouput', 'output/', '../ouput',etc. -->
         </output>
     </defaults>
     <source>
-        <file name="SampleData"> <!--Example of input source file with relative path. Use "SampleData", "SampleData.xls", "/Data/SampleData", etc -->
+        <file name="sample/SampleData"> <!--Example of input source file with relative path. Use "SampleData", "SampleData.xls", "/Data/SampleData", etc -->
             <sheet name="SimpleTest"></sheet> <!--Example of source sheet. The terminal will throw a warning if the sheet is non-existent or invalid -->
-            <sheet name="UseExcelFeatures" outputPath="output" extention=".txt"></sheet> <!-- Optional attributes for sheets -->
+            <sheet name="UseExcelFeatures" outputPath="output" extension=".txt"></sheet> <!-- Optional attributes for sheets -->
         </file>
-        <file name="NonExistentFile"> <!--Example of non-existent file -->
+        <file name="sample/NonExistentFile"> <!--Example of non-existent file -->
             <sheet name="NonExistentSheet"></sheet>
         </file>
-        <file name="SampleGame" outputPath="output" extention="json"> <!-- Optional attributes for input files -->
+        <file name="sample/SampleGame" outputPath="output" extension="json"> <!-- Optional attributes for input files -->
             <sheet name="Monsters"></sheet>
             <sheet name="NonExistentSheet"></sheet> <!--[MISCONFIG] Non-existent sheet -->
         </file>

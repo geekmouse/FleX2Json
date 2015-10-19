@@ -49,7 +49,7 @@ public class entrance {
 				//Read default settings
 				Element defaultNode=(Element) doc.getElementsByTagName("defaults").item(0);
 				Element defaultOutputNode=(Element) defaultNode.getElementsByTagName("output").item(0);
-				mDefaultOutputExt=defaultOutputNode.getElementsByTagName("extention").item(0).getTextContent();
+				mDefaultOutputExt=defaultOutputNode.getElementsByTagName("extension").item(0).getTextContent();
 				if (mDefaultOutputExt.charAt(0)!='.') {
 					mDefaultOutputExt="."+mDefaultOutputExt;
 				}

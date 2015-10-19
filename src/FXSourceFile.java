@@ -7,7 +7,7 @@ import org.w3c.dom.*;
 
 public class FXSourceFile {
 	private static final String cKeyOutputPath = "outputPath";
-	private static final String cKeyOutputExt = "extention";
+	private static final String cKeyOutputExt = "extension";
 	public String defaultOutputPathString;
 	public String defaultOutputExtString;
 	

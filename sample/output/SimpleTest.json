@@ -21,8 +21,7 @@
 			false,
 			true
 		],
-		"data_integer":50,
-		"empty":"dfaen;ae"
+		"data_integer":50
 	},
 	{
 		"data_bool":false,
@@ -46,8 +45,7 @@
 			true,
 			false
 		],
-		"data_integer":0,
-		"empty":"asefe"
+		"data_integer":0
 	},
 	{
 		"data_bool":false,
@@ -69,8 +67,7 @@
 			true,
 			true
 		],
-		"data_integer":0,
-		"empty":"asefe"
+		"data_integer":0
 	},
 	{
 		"data_bool":false,
@@ -86,7 +83,18 @@
 			false,
 			true
 		],
-		"data_integer":-12,
-		"empty":""
+		"data_integer":-12
+	},
+	{
+		"data_bool":true,
+		"data_array_int":[],
+		"data_array_float":[],
+		"data_string":"",
+		"data_float":0,
+		"data_array_strings":[],
+		"data_array_bool":[
+			true
+		],
+		"data_integer":0
 	}
 ]

@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class FXSheet {
 	static final String cKeyOutputPath="outputPath";
-	static final String cKeyOutputExt="extention";
+	static final String cKeyOutputExt="extension";
 	static final String cKeyName="name";
 	static final String splitString="\\|";//"|"
 	static final Boolean c_defaultBooleanValue=Boolean.TRUE;
@@ -113,139 +113,141 @@ public class FXSheet {
 			FXTools.LOGGER.fine("Processing sheet:"+sheetXls.getSheetName()+"...");
 			
 			for (int i = Line_ValueBegin; i <= sheetXls.getLastRowNum(); i++) {
-				FXTools.LOGGER.fine("----Line:"+i+"----");
 				Row thisRow=sheetXls.getRow(i);
-				JSONObject lineJsonObject=new JSONObject();
-				for(int j=0;j<numColumns;j++){
-					if (j==9) {
-						FXTools.LOGGER.fine("..");
-					}
-					String l_columnString=FXTools.xlsColumnStringFromIndex(j);
-					String l_namePropString=getCellValueString(rowName.getCell(j));
-					String l_valuePropString=getCellValueString(thisRow.getCell(j));
-					
-					l_valuePropString=l_valuePropString.replaceAll("\n", "");
-					FXTools.LOGGER.finer("Column:"+l_columnString+"..."+getCellValueString(rowDesp.getCell(j))+":"+getCellValueString(rowName.getCell(j)));
-					
-					char thisType='N';
-					Cell typeCell=rowType.getCell(j);
-					if (typeCell==null || typeCell.getCellType()==Cell.CELL_TYPE_BLANK) {
-						FXTools.LOGGER.warning("The value type of column "+l_columnString+" is not assigned. Use the default type 'string'");
-						thisType='s';
-					}
-					else{
-						String typeString=typeCell.getStringCellValue();
-						thisType=typeString.charAt(0);
-					}
-					
-					
-					switch (thisType) {
-					
-					case 's':{
-						lineJsonObject.put(l_namePropString,l_valuePropString ); 
-						break;
-					}
-					case 'i':
-						if (l_valuePropString=="") {
-							l_valuePropString="0";
-						}
-						lineJsonObject.put(l_namePropString,Integer.valueOf((int) Float.parseFloat(l_valuePropString)) ); 
-						break;
-					case 'b':{
-						if (l_valuePropString=="") {
-							lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
-							//l_valuePropString="true";
+				if (thisRow!=null) {
+					FXTools.LOGGER.fine("----Line:"+(i+1)+"----");
+					JSONObject lineJsonObject=new JSONObject();
+					for(int j=0;j<numColumns;j++){
+						
+						String l_columnString=FXTools.xlsColumnStringFromIndex(j);
+						String l_namePropString=getCellValueString(rowName.getCell(j));
+						String l_valuePropString=getCellValueString(thisRow.getCell(j));
+						
+						l_valuePropString=l_valuePropString.replaceAll("\n", "");
+						FXTools.LOGGER.finer("Column:"+l_columnString+"..."+getCellValueString(rowDesp.getCell(j))+":"+getCellValueString(rowName.getCell(j)));
+						
+						char thisType='N';
+						Cell typeCell=rowType.getCell(j);
+						if (typeCell==null || typeCell.getCellType()==Cell.CELL_TYPE_BLANK) {
+							FXTools.LOGGER.warning("The value type of column "+l_columnString+" is not assigned. Use the default type 'string'");
+							thisType='s';
 						}
 						else{
-							char l_valueChar=l_valuePropString.charAt(0);
-							if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
+							String typeString=typeCell.getStringCellValue();
+							thisType=typeString.charAt(0);
+						}
+						
+						
+						switch (thisType) {
+						
+						case 's':{
+							lineJsonObject.put(l_namePropString,l_valuePropString ); 
+							break;
+						}
+						case 'i':
+							if (l_valuePropString=="") {
+								l_valuePropString="0";
+							}
+							lineJsonObject.put(l_namePropString,Integer.valueOf((int) Float.parseFloat(l_valuePropString)) ); 
+							break;
+						case 'b':{
+							if (l_valuePropString=="") {
 								lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
+								//l_valuePropString="true";
 							}
 							else{
-								lineJsonObject.put(l_namePropString, !c_defaultBooleanValue);
-							}
-						}
-						break;
-					}
-					case 'f':{
-						if (l_valuePropString=="") {
-							l_valuePropString="0.0";
-						}
-						lineJsonObject.put(l_namePropString,Float.parseFloat(l_valuePropString)); 
-						break;
-					}
-					case 'B':{
-						JSONArray cellArray=new JSONArray();
-						String[] arr=l_valuePropString.split(splitString);
-						for (int k = 0; k < arr.length; k++) {
-							Boolean l_destBoolean;
-							if (arr[k]=="") {
-								l_destBoolean=c_defaultBooleanValue;	
-							}
-							else{
-								char l_valueChar=arr[k].charAt(0);
+								char l_valueChar=l_valuePropString.charAt(0);
 								if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
-									l_destBoolean=c_defaultBooleanValue;
+									lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
 								}
 								else{
-									l_destBoolean=!c_defaultBooleanValue;
+									lineJsonObject.put(l_namePropString, !c_defaultBooleanValue);
 								}
 							}
+							break;
+						}
+						case 'f':{
+							if (l_valuePropString=="") {
+								l_valuePropString="0.0";
+							}
+							lineJsonObject.put(l_namePropString,Float.parseFloat(l_valuePropString)); 
+							break;
+						}
+						case 'B':{
+							JSONArray cellArray=new JSONArray();
+							String[] arr=l_valuePropString.split(splitString);
+							for (int k = 0; k < arr.length; k++) {
+								Boolean l_destBoolean;
+								if (arr[k]=="") {
+									l_destBoolean=c_defaultBooleanValue;	
+								}
+								else{
+									char l_valueChar=arr[k].charAt(0);
+									if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
+										l_destBoolean=c_defaultBooleanValue;
+									}
+									else{
+										l_destBoolean=!c_defaultBooleanValue;
+									}
+								}
+								
+								cellArray.add(l_destBoolean);
+							}
+							lineJsonObject.put(l_namePropString,cellArray);
+							break;
+						}
+						//----The arrays of type float---
+						case 'a':
+						case 'F':{
+							JSONArray cellArray=new JSONArray();
+							String[] arr=l_valuePropString.split(splitString);
+							for (int k = 0; k < arr.length; k++) {
+								if (arr[k]!="") {
+									cellArray.add(Float.parseFloat(arr[k]));
+								}
+							}
+							lineJsonObject.put(l_namePropString,cellArray);
+							break;
+						}
+						//----The arrays of type Int---
+						case 'I':{
+							JSONArray cellArray=new JSONArray();
+							String[] arr=l_valuePropString.split(splitString);
+							for (int k = 0; k < arr.length; k++) {
+								if (arr[k]!="") {
+									cellArray.add(Integer.valueOf((int) Float.parseFloat(arr[k])));
+								}
+							}
+							lineJsonObject.put(l_namePropString,cellArray);
+							break;
+						}
+						//----The arrays of type String---
+						case 'S':
+						case 'A':{
+							JSONArray cellArray=new JSONArray();
 							
-							cellArray.add(l_destBoolean);
-						}
-						lineJsonObject.put(l_namePropString,cellArray);
-						break;
-					}
-					//----The arrays of type float---
-					case 'a':
-					case 'F':{
-						JSONArray cellArray=new JSONArray();
-						String[] arr=l_valuePropString.split(splitString);
-						for (int k = 0; k < arr.length; k++) {
-							if (arr[k]!="") {
-								cellArray.add(Float.parseFloat(arr[k]));
+							String[] arr=l_valuePropString.split(splitString);
+							for (int k = 0; k < arr.length; k++) {
+								if (arr[k]!="") {
+									cellArray.add(arr[k]);
+								}
 							}
+							lineJsonObject.put(l_namePropString,cellArray);
+							break;
 						}
-						lineJsonObject.put(l_namePropString,cellArray);
-						break;
+						//----Not to convert columns---
+						case 'N':	
+						case 'n':
+						case 'C':
+						case 'c':
+							break;
+						default:
+							break;
+						}			
 					}
-					//----The arrays of type Int---
-					case 'I':{
-						JSONArray cellArray=new JSONArray();
-						String[] arr=l_valuePropString.split(splitString);
-						for (int k = 0; k < arr.length; k++) {
-							if (arr[k]!="") {
-								cellArray.add(Integer.valueOf((int) Float.parseFloat(arr[k])));
-							}
-						}
-						lineJsonObject.put(l_namePropString,cellArray);
-						break;
-					}
-					//----The arrays of type String---
-					case 'S':
-					case 'A':{
-						JSONArray cellArray=new JSONArray();
-						
-						String[] arr=l_valuePropString.split(splitString);
-						for (int k = 0; k < arr.length; k++) {
-							if (arr[k]!="") {
-								cellArray.add(arr[k]);
-							}
-						}
-						lineJsonObject.put(l_namePropString,cellArray);
-						break;
-					}
-					//----Not to convert columns---
-					case 'N':	
-					case 'n':
-						break;
-					default:
-						break;
-					}			
+					//
+					sheetArray.add(lineJsonObject);
 				}
-				//
-				sheetArray.add(lineJsonObject);
 			}
 			String l_fullPathString=mOutputPath+mSheetName+mOutputExt;
 			WriteJson(sheetArray, l_fullPathString);
