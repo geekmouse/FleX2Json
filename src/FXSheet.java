@@ -37,6 +37,7 @@ public class FXSheet {
 		//Read Configuration
 		mSheetName=pConfig.getAttribute(cKeyName);
 		
+		//Output path
 		if (pConfig.hasAttribute(cKeyOutputPath)) {
 			mOutputPath=pConfig.getAttribute(cKeyOutputPath);
 		}
@@ -48,6 +49,15 @@ public class FXSheet {
 		if (lengthOutputPathString>0){
 			if(mOutputPath.charAt(lengthOutputPathString-1)!=FXTools.pathSymbol) {
 				mOutputPath+=FXTools.pathSymbol;
+			}
+		}
+		File file=new File(mOutputPath);
+		if (!file.exists()) {
+			if (file.mkdir()) {
+				FXTools.LOGGER.fine("Successfully created the output path: '"+ mOutputPath+"'.");
+			}
+			else{
+				FXTools.LOGGER.severe("Failed to create the output path: '"+ mOutputPath+"'");
 			}
 		}
 		

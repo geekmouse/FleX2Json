@@ -6,7 +6,7 @@
     <defaults><!-- Default config for all sources. You can modify the values but don't remove any element -->
         <output><!-- Default config for output files-->
             <extension>.json</extension> <!-- Default output file extensions. eg. 'json','.json','txt', etc.-->
-            <path>sample/output</path><!-- Default ouput path. eg. 'ouput', 'output/', '../ouput',etc. -->
+            <path>output</path><!-- Default ouput path. eg. 'ouput', 'output/', '../ouput',etc. -->
         </output>
     </defaults>
     <source>
