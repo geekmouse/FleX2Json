@@ -19,8 +19,8 @@ There are many projects targeted to provide such functions already but we found 
  Generate sample JSON files with 3 simple steps:
  
 1. Update your Java to the latest version from [HERE](https://java.com/en/download/).
-2. Clone or download FleX2Json and copy `FleX2Json/sample/` to any directory (eg. `YourPath/`) 
-3. In Terminal or any commandline tools, enter `YourPath/`, run `java -jar FleX2Json.jar`. Work done. The JSON files generated from **SampleData.xls** and **SampleGame.xls** can be found under `YourPath/output`. 
+2. Download latest release [FleX2Json.zip](https://github.com/geekmouse/FleX2Json/releases) to any directory (eg. `YourPath/`) 
+3. In Terminal or any commandline tools, enter `YourPath/FleX2Json`, run `java -jar FleX2Json.jar`. Work done. The JSON files generated from **SampleData.xls** and **SampleGame.xls** can be found under `YourPath/output`. 
 
 There are detailed instructions of each field in`SampleData.xls::SimpleTest` and `config.xml`. Edit the values and repeat step 3 to compare the results, and you'll quickly catch how to use it.
 
