@@ -7,8 +7,8 @@ There are many projects targeted to provide such functions already but we found 
 ## Features
 
 * **Java** based. Run it anywhere.
-* Run **single command** to generate JSON files from mutiple sheets from mutiple .xls sources.
-* Can **custom the ouput paths and extensions** for every source file or even every sheet with simple configuration in config.xml.
+* Run **single command** to generate JSON files from multiple sheets from multiple .xls sources.
+* Can **custom the output paths and extensions** for every source file or even every sheet with simple configuration in config.xml.
 * **Auto-check data types** for every attribute if is needed.
 * Flexibly insert human-readable comment in the excel sheets for every object and attribute.
 * Support 3-layers JSON structure. However in current version, only the array of basic types is supported in the 3rd layer.
