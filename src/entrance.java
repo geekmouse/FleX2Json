@@ -16,13 +16,33 @@ import org.xml.sax.SAXException;
  * Copyright (c) 2015		Liqing Pan
  *
  *****************************************************************************/
+enum TypeInputFile{
+	INPUT_TYPE_EXCEL97,
+	INPUT_TYPE_EXCEL07,
+	INPUT_TYPE_CSV,
+	INPUT_TYPE_Unkown
+}
+
+enum TypeOutputFormat{
+	FORMAT_JSON,
+	FORMAT_XML,
+	FORMAT_Unkown
+}
 
 public class entrance {
+//	public static final int FORMAT_JSON=0;
+//	public static final int FORMAT_XML=1;
+//	
+//	public static final int INPUT_TYPE_EXCEL97=0;
+//	public static final int INPUT_TYPE_EXCEL07=1;
+//	public static final int INPUT_TYPE_CSV=2;
+	
 	public static String mDefaultOutputPath;
 	public static String mDefaultOutputExt;
+	public static String mDefaultOutputExtXML;
+	public static TypeOutputFormat mDefaultOutputFormat;
 	
-	
-	public static String version(){return "0.9";}
+	public static String version(){return "0.91";}
 	public static String CopyrightString(){return "Copyright (c) 2013-2015 GeekMouse Game\nCopyright (c) 2015 Liqing Pan\n";}
 	
 	
@@ -54,6 +74,16 @@ public class entrance {
 					mDefaultOutputExt="."+mDefaultOutputExt;
 				}
 				
+				mDefaultOutputExtXML=defaultOutputNode.getElementsByTagName("extension_xml").item(0).getTextContent();
+				if (mDefaultOutputExtXML.charAt(0)!='.') {
+					mDefaultOutputExtXML="."+mDefaultOutputExtXML;
+				}
+				
+				
+				
+				String formatString=defaultOutputNode.getElementsByTagName("format").item(0).getTextContent();
+				mDefaultOutputFormat=FXTools.retrieveFormat(formatString);
+						
 				mDefaultOutputPath=defaultOutputNode.getElementsByTagName("path").item(0).getTextContent();
 				
 				//Read Files
@@ -62,11 +92,11 @@ public class entrance {
 				for (int i=0;i<fileList.getLength();i++){
 					Element fileNode=(Element) fileList.item(i);
 					FXSourceFile sourceFile=new FXSourceFile(fileNode);
-					Boolean result=sourceFile.convert();
-					if (false/*!result*/) {
-						FXTools.LOGGER.warning("converting abort in file:"+fileNode.getAttribute("name"));
-						return;
-					}
+					sourceFile.convert();
+//					if (false/*!result*/) {
+//						FXTools.LOGGER.warning("converting abort in file:"+fileNode.getAttribute("name"));
+//						return;
+//					}
 				}
 				
 				

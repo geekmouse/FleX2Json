@@ -11,6 +11,9 @@ import java.util.logging.Logger;
 
 /**Static tool functions*/
 public class FXTools extends Formatter{
+	public static final String  cExtExcel97=".xls";
+	public static final String  cExtExcel2007=".xlsx";
+	
 	static public char pathSymbol;
 	static FXTools tools;
 	static final public Logger LOGGER=Logger.getGlobal();
@@ -62,6 +65,34 @@ public class FXTools extends Formatter{
 			return '/';
 		}
 	}
+	static public TypeOutputFormat retrieveFormat(String formatString){
+		switch (formatString.charAt(0)) {
+		case 'j':
+			return TypeOutputFormat.FORMAT_JSON;
+		case 'x':
+			return TypeOutputFormat.FORMAT_XML;
+		default:
+			FXTools.LOGGER.warning("Unretrievable parameter for default output format '"+formatString +"'. Use Json for default");
+			return TypeOutputFormat.FORMAT_JSON;
+		}
+	}
+	
+	static public TypeInputFile retrieveInputFormat(String pPath){
+		int length=pPath.length();
+		
+		String xlsExtString=(String) pPath.subSequence(length-cExtExcel97.length(), length);
+		String xlsxExtString=(String) pPath.subSequence(length-cExtExcel2007.length(), length);
+		if (FXTools.cExtExcel97.equals(xlsExtString) ) {
+			return TypeInputFile.INPUT_TYPE_EXCEL97;
+		}
+		else if (xlsxExtString.equals(FXTools.cExtExcel2007) ) {
+			return TypeInputFile.INPUT_TYPE_EXCEL07;
+		}
+		else{
+			return TypeInputFile.INPUT_TYPE_Unkown;
+		}
+	}
+	
 	@Override
 	public String format(LogRecord record) {
 		StringBuilder sb = new StringBuilder();

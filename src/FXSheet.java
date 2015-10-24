@@ -1,20 +1,44 @@
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 public class FXSheet {
 	static final String cKeyOutputPath="outputPath";
 	static final String cKeyOutputExt="extension";
+	static final String cKeyOutputFormat="format";
 	static final String cKeyName="name";
 	static final String splitString="\\|";//"|"
 	static final Boolean c_defaultBooleanValue=Boolean.TRUE;
@@ -28,6 +52,7 @@ public class FXSheet {
 	public FXSourceFile mHostFile;
 	public String mOutputPath;
 	public String mOutputExt;
+	public TypeOutputFormat mOutputFormat;
 	public String mSheetName;
 	
 	
@@ -43,6 +68,14 @@ public class FXSheet {
 		}
 		else{
 			mOutputPath=pSource.defaultOutputPathString;
+		}
+		
+		//Format
+		if (pConfig.hasAttribute(cKeyOutputFormat)) {
+			mOutputFormat=FXTools.retrieveFormat(pConfig.getAttribute(cKeyOutputFormat)) ;
+		}
+		else{
+			mOutputFormat=pSource.defaultOutputFormat;
 		}
 		
 		int lengthOutputPathString=mOutputPath.length();
@@ -67,7 +100,18 @@ public class FXSheet {
 			mOutputExt=pConfig.getAttribute(cKeyOutputExt);
 		}
 		else{
-			mOutputExt=pSource.defaultOutputExtString;
+			switch (mOutputFormat) {
+			case FORMAT_JSON:
+				mOutputExt=pSource.defaultOutputExtString;
+				break;
+			case FORMAT_XML:
+				mOutputExt=pSource.defaultOutputExtXMLString;
+				break;
+			default:
+				mOutputExt=pSource.defaultOutputExtString;
+				break;
+			}
+
 		}
 		if (mOutputExt.charAt(0)!='.') {
 			mOutputExt="."+mOutputExt;
@@ -107,8 +151,9 @@ public class FXSheet {
 	}
 
 	
-	public Boolean convert(HSSFWorkbook pWorkbook){
-		HSSFSheet sheetXls=pWorkbook.getSheet(mSheetName);
+	public Boolean convert(Workbook pWorkbook,TypeInputFile typeInputFile){
+		
+		Sheet sheetXls=pWorkbook.getSheet(mSheetName);
 		if (sheetXls==null) {
 			FXTools.LOGGER.warning("Failed to retrieve the sheet: '"+mSheetName+"' in file '"+mHostFile.mFileNameString+"'.");
 			return false;
@@ -147,120 +192,14 @@ public class FXSheet {
 							thisType=typeString.charAt(0);
 						}
 						
-						
-						switch (thisType) {
-						
-						case 's':{
-							lineJsonObject.put(l_namePropString,l_valuePropString ); 
-							break;
-						}
-						case 'i':
-							if (l_valuePropString=="") {
-								l_valuePropString="0";
-							}
-							lineJsonObject.put(l_namePropString,Integer.valueOf((int) Float.parseFloat(l_valuePropString)) ); 
-							break;
-						case 'b':{
-							if (l_valuePropString=="") {
-								lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
-								//l_valuePropString="true";
-							}
-							else{
-								char l_valueChar=l_valuePropString.charAt(0);
-								if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
-									lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
-								}
-								else{
-									lineJsonObject.put(l_namePropString, !c_defaultBooleanValue);
-								}
-							}
-							break;
-						}
-						case 'f':{
-							if (l_valuePropString=="") {
-								l_valuePropString="0.0";
-							}
-							lineJsonObject.put(l_namePropString,Float.parseFloat(l_valuePropString)); 
-							break;
-						}
-						case 'B':{
-							JSONArray cellArray=new JSONArray();
-							String[] arr=l_valuePropString.split(splitString);
-							for (int k = 0; k < arr.length; k++) {
-								Boolean l_destBoolean;
-								if (arr[k]=="") {
-									l_destBoolean=c_defaultBooleanValue;	
-								}
-								else{
-									char l_valueChar=arr[k].charAt(0);
-									if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
-										l_destBoolean=c_defaultBooleanValue;
-									}
-									else{
-										l_destBoolean=!c_defaultBooleanValue;
-									}
-								}
-								
-								cellArray.add(l_destBoolean);
-							}
-							lineJsonObject.put(l_namePropString,cellArray);
-							break;
-						}
-						//----The arrays of type float---
-						case 'a':
-						case 'F':{
-							JSONArray cellArray=new JSONArray();
-							String[] arr=l_valuePropString.split(splitString);
-							for (int k = 0; k < arr.length; k++) {
-								if (arr[k]!="") {
-									cellArray.add(Float.parseFloat(arr[k]));
-								}
-							}
-							lineJsonObject.put(l_namePropString,cellArray);
-							break;
-						}
-						//----The arrays of type Int---
-						case 'I':{
-							JSONArray cellArray=new JSONArray();
-							String[] arr=l_valuePropString.split(splitString);
-							for (int k = 0; k < arr.length; k++) {
-								if (arr[k]!="") {
-									cellArray.add(Integer.valueOf((int) Float.parseFloat(arr[k])));
-								}
-							}
-							lineJsonObject.put(l_namePropString,cellArray);
-							break;
-						}
-						//----The arrays of type String---
-						case 'S':
-						case 'A':{
-							JSONArray cellArray=new JSONArray();
-							
-							String[] arr=l_valuePropString.split(splitString);
-							for (int k = 0; k < arr.length; k++) {
-								if (arr[k]!="") {
-									cellArray.add(arr[k]);
-								}
-							}
-							lineJsonObject.put(l_namePropString,cellArray);
-							break;
-						}
-						//----Not to convert columns---
-						case 'N':	
-						case 'n':
-						case 'C':
-						case 'c':
-							break;
-						default:
-							break;
-						}			
+						lineJsonObject=_convert(thisType, l_namePropString, l_valuePropString, lineJsonObject);
 					}
 					//
-					sheetArray.add(lineJsonObject);
+					sheetArray.put(lineJsonObject);
 				}
 			}
 			String l_fullPathString=mOutputPath+mSheetName+mOutputExt;
-			WriteJson(sheetArray, l_fullPathString);
+			writeFile(sheetArray, l_fullPathString);
 			FXTools.LOGGER.fine("======================================");
 			FXTools.LOGGER.fine("Output Json Succeed!! Check the file at:"+l_fullPathString);
 			FXTools.LOGGER.fine("======================================");
@@ -268,9 +207,193 @@ public class FXSheet {
 		}
 	}
 	
-	public void WriteJson(JSONArray sheetArray,String outputName){
+	protected JSONObject _convert(char type,String l_namePropString,String l_valuePropString,JSONObject lineJsonObject) {
+		switch (type) {
+		case 's':{
+			lineJsonObject.put(l_namePropString,l_valuePropString ); 
+			break;
+		}
+		case 'i':
+			if (l_valuePropString=="") {
+				l_valuePropString="0";
+			}
+			lineJsonObject.put(l_namePropString,Integer.valueOf((int) Float.parseFloat(l_valuePropString)) ); 
+			break;
+		case 'b':{
+			if (l_valuePropString=="") {
+				lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
+				//l_valuePropString="true";
+			}
+			else{
+				char l_valueChar=l_valuePropString.charAt(0);
+				if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
+					lineJsonObject.put(l_namePropString, c_defaultBooleanValue);
+				}
+				else{
+					lineJsonObject.put(l_namePropString, !c_defaultBooleanValue);
+				}
+			}
+			break;
+		}
+		case 'f':{
+			if (l_valuePropString=="") {
+				l_valuePropString="0.0";
+			}
+			lineJsonObject.put(l_namePropString,Float.parseFloat(l_valuePropString)); 
+			break;
+		}
+		case 'B':{
+			JSONArray cellArray=new JSONArray();
+			String[] arr=l_valuePropString.split(splitString);
+			for (int k = 0; k < arr.length; k++) {
+				Boolean l_destBoolean;
+				if (arr[k]=="") {
+					l_destBoolean=c_defaultBooleanValue;	
+				}
+				else{
+					char l_valueChar=arr[k].charAt(0);
+					if (FXTools.findCharInString(l_valueChar, "tTyY")!=-1) {
+						l_destBoolean=c_defaultBooleanValue;
+					}
+					else{
+						l_destBoolean=!c_defaultBooleanValue;
+					}
+				}
+				
+				cellArray.put(l_destBoolean);
+			}
+			lineJsonObject.put(l_namePropString,cellArray);
+			break;
+		}
+		//----The arrays of type float---
+		case 'a':
+		case 'F':{
+			JSONArray cellArray=new JSONArray();
+			String[] arr=l_valuePropString.split(splitString);
+			for (int k = 0; k < arr.length; k++) {
+				if (arr[k]!="") {
+					cellArray.put(Float.parseFloat(arr[k]));
+				}
+			}
+			lineJsonObject.put(l_namePropString,cellArray);
+			break;
+		}
+		//----The arrays of type Int---
+		case 'I':{
+			JSONArray cellArray=new JSONArray();
+			String[] arr=l_valuePropString.split(splitString);
+			for (int k = 0; k < arr.length; k++) {
+				if (arr[k]!="") {
+					cellArray.put(Integer.valueOf((int) Float.parseFloat(arr[k])));
+				}
+			}
+			lineJsonObject.put(l_namePropString,cellArray);
+			break;
+		}
+		//----The arrays of type String---
+		case 'S':
+		case 'A':{
+			JSONArray cellArray=new JSONArray();
+			
+			String[] arr=l_valuePropString.split(splitString);
+			for (int k = 0; k < arr.length; k++) {
+				if (arr[k]!="") {
+					cellArray.put(arr[k]);
+				}
+			}
+			lineJsonObject.put(l_namePropString,cellArray);
+			break;
+		}
+		//----Not to convert columns---
+		case 'N':	
+		case 'n':
+		case 'C':
+		case 'c':
+			break;
+		default:
+			break;
+		}
+		return lineJsonObject;
+	}
+	
+	public void writeFile(JSONArray sheetArray,String outputName){
+		String convertString;
 		
-		String jsonString=JSONArray.toJSONString(sheetArray, true);
+		if (mOutputFormat==TypeOutputFormat.FORMAT_XML) {//XML
+			convertString=XML.toString(sheetArray,"object");
+			StringBuilder builder=new StringBuilder();
+			builder
+				.append("<?xml version=\"1.0\"?>\n")
+				.append("<"+mSheetName+">")
+				.append(convertString)
+				.append("</"+mSheetName+">");
+			convertString=builder.toString();
+			try {
+				Document document;
+				try {
+					document = DocumentBuilderFactory.newInstance()
+					        .newDocumentBuilder()
+					        .parse(new InputSource(new ByteArrayInputStream(convertString.getBytes("utf-8"))));
+					XPath xPath = XPathFactory.newInstance().newXPath();
+				    NodeList nodeList;
+					try {
+						nodeList = (NodeList) xPath.evaluate("//text()[normalize-space()='']",
+						                                              document,
+						                                              XPathConstants.NODESET);
+						for (int i = 0; i < nodeList.getLength(); ++i) {
+					        Node node = nodeList.item(i);
+					        node.getParentNode().removeChild(node);
+					    }
+						Transformer transformer = TransformerFactory.newInstance().newTransformer();
+					    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+					    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+					    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+					    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+					    StringWriter stringWriter = new StringWriter();
+					    StreamResult streamResult = new StreamResult(stringWriter);
+					 
+					    try {
+							transformer.transform(new DOMSource(document), streamResult);
+							convertString=stringWriter.toString();
+						} catch (TransformerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					 
+					    
+					    
+					} catch (XPathExpressionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				    
+				    
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SAXException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+  				
+			} catch (TransformerConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerFactoryConfigurationError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		else{
+			convertString=sheetArray.toString(2);
+		}
 		try {
 			File f=new File(outputName);
 			if (!f.exists()) {
@@ -278,7 +401,7 @@ public class FXSheet {
 			}
 			BufferedWriter outputBufferedWriter=new BufferedWriter(
 					new OutputStreamWriter(new FileOutputStream(f), "UTF-8") );
-			outputBufferedWriter.write(jsonString);
+			outputBufferedWriter.write(convertString);
 			outputBufferedWriter.close();
 		} catch (Exception e) {
 			// TODO: handle exception

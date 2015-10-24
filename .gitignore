@@ -2,3 +2,5 @@
 
 output/
 sample/output
+bin/
+＊.DS_Store
