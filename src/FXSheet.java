@@ -56,19 +56,19 @@ public class FXSheet {
 	public String mSheetName;
 	
 	
+	public FXSheet(String pSheetName, TypeOutputFormat pOutputFormat, String pOutputPath,String pOutputExt ,FXSourceFile pSource ){
+		mHostFile=pSource;
+		mSheetName=pSheetName;
+		mOutputPath=pOutputPath;
+		mOutputExt=pOutputExt;
+		mOutputFormat=pOutputFormat;
+	}
+	
 	public FXSheet(Element pConfig,FXSourceFile pSource) {
 		mHostFile=pSource;
 		
 		//Read Configuration
 		mSheetName=pConfig.getAttribute(cKeyName);
-		
-		//Output path
-		if (pConfig.hasAttribute(cKeyOutputPath)) {
-			mOutputPath=pConfig.getAttribute(cKeyOutputPath);
-		}
-		else{
-			mOutputPath=pSource.defaultOutputPathString;
-		}
 		
 		//Format
 		if (pConfig.hasAttribute(cKeyOutputFormat)) {
@@ -77,13 +77,14 @@ public class FXSheet {
 		else{
 			mOutputFormat=pSource.defaultOutputFormat;
 		}
-		
-		int lengthOutputPathString=mOutputPath.length();
-		if (lengthOutputPathString>0){
-			if(mOutputPath.charAt(lengthOutputPathString-1)!=FXTools.pathSymbol) {
-				mOutputPath+=FXTools.pathSymbol;
-			}
+		//Output path
+		if (pConfig.hasAttribute(cKeyOutputPath)) {
+			mOutputPath=pConfig.getAttribute(cKeyOutputPath);
 		}
+		else{
+			mOutputPath=pSource.defaultOutputPathString;
+		}
+		mOutputPath=FXTools.formatPath(mOutputPath);
 		File file=new File(mOutputPath);
 		if (!file.exists()) {
 			if (file.mkdir()) {
@@ -94,8 +95,7 @@ public class FXSheet {
 			}
 		}
 		
-		
-		
+		//Extension
 		if (pConfig.hasAttribute(cKeyOutputExt)) {
 			mOutputExt=pConfig.getAttribute(cKeyOutputExt);
 		}
@@ -113,10 +113,9 @@ public class FXSheet {
 			}
 
 		}
-		if (mOutputExt.charAt(0)!='.') {
-			mOutputExt="."+mOutputExt;
-		}
+		mOutputExt=FXTools.formatExt(mOutputExt);
 	}
+
 	
 	public String getCellValueString(Cell cell){
 		if (cell==null) {

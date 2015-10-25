@@ -38,6 +38,26 @@ public class FXTools extends Formatter{
 		return -1;
 	}
 	
+	static public String formatPath(String pOrigPathString){
+		int lengthOutputPathString=pOrigPathString.length();
+		if (lengthOutputPathString>0){
+			if(pOrigPathString.charAt(lengthOutputPathString-1)!=pathSymbol) {
+				pOrigPathString+=FXTools.pathSymbol;
+			}
+		}
+		return pOrigPathString;
+	}
+	
+	static public String formatExt(String pOrigExt){
+		int length=pOrigExt.length();
+		if (length>0) {
+			if (pOrigExt.charAt(0)!='.') {
+				pOrigExt='.'+pOrigExt;
+			}
+		}
+		return pOrigExt;
+	}
+	
 	static public String xlsColumnStringFromIndex(int columnIndex) {
 		//[Pending]Temporary solution, will use radix 26 later to make xls column indexes readable
 		String s="";
@@ -68,12 +88,30 @@ public class FXTools extends Formatter{
 	static public TypeOutputFormat retrieveFormat(String formatString){
 		switch (formatString.charAt(0)) {
 		case 'j':
+		case 'J':
 			return TypeOutputFormat.FORMAT_JSON;
 		case 'x':
+		case 'X':
 			return TypeOutputFormat.FORMAT_XML;
+		case '.':
+		case ' ':{
+			return retrieveFormat(formatString.substring(1));
+		}
+		
 		default:
 			FXTools.LOGGER.warning("Unretrievable parameter for default output format '"+formatString +"'. Use Json for default");
 			return TypeOutputFormat.FORMAT_JSON;
+		}
+	}
+	
+	static public String stringFromFormatType(TypeOutputFormat pType){
+		switch (pType) {
+		case FORMAT_JSON:
+			return "json";
+		case FORMAT_XML:
+			return "xml";
+		default:
+			return "unknown";
 		}
 	}
 	

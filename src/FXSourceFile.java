@@ -24,6 +24,14 @@ public class FXSourceFile {
 	
 	public ArrayList<FXSheet> mSheetsList;
 	
+	public FXSourceFile(String pSourcePath,String pSheetName,String pOutputPath,TypeOutputFormat pOutputformat,String pOutputExt){
+		mFileNameString=pSourcePath;
+		mTypeInputFile=FXTools.retrieveInputFormat(mFileNameString);
+		FXSheet sheet=new FXSheet(pSheetName, pOutputformat,pOutputPath,pOutputExt,this);
+		mSheetsList=new ArrayList<FXSheet>();
+		mSheetsList.add(sheet);
+	}
+	
 	public FXSourceFile(Element pConfig){
 		mFileNameString=pConfig.getAttribute("name");
 		mTypeInputFile=FXTools.retrieveInputFormat(mFileNameString);
