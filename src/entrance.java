@@ -35,7 +35,7 @@ public class entrance {
 	public static String mDefaultOutputExtXML=".xml";
 	public static TypeOutputFormat mDefaultOutputFormat=TypeOutputFormat.FORMAT_JSON;
 	
-	public static String version(){return "0.92";}
+	public static String version(){return "0.94";}
 	public static String CopyrightString(){return "Copyright (c) 2013-2015 GeekMouse Game\nCopyright (c) 2015 Liqing Pan\n";}
 	
 	//Parameter Related
@@ -55,7 +55,7 @@ public class entrance {
 			FXTools.LOGGER.fine("Read configuration from config.xml...");
 			processConvert();
 		}
-		if (args.length<0) {//Invalid input parameters
+		else if (args.length<0) {//Invalid input parameters
 			
 			FXTools.LOGGER.severe("Number of input parameters cannot be less than 3:\n1st:\tInput file name\n 2ed:\tInput sheet name\n 3rd:\tOutput path\nAbort...\n");
 			return;
@@ -153,30 +153,56 @@ public class entrance {
 				doc = db.parse(file);
 				doc.getDocumentElement().normalize();
 				//Read default settings
-				Element defaultNode=(Element) doc.getElementsByTagName("defaults").item(0);
-				Element defaultOutputNode=(Element) defaultNode.getElementsByTagName("output").item(0);
-				mDefaultOutputExt=FXTools.formatExt( defaultOutputNode.getElementsByTagName("extension").item(0).getTextContent());
-				mDefaultOutputExtXML=FXTools.formatExt(defaultOutputNode.getElementsByTagName("extension_xml").item(0).getTextContent());
-
-				String formatString=defaultOutputNode.getElementsByTagName("format").item(0).getTextContent();
-				mDefaultOutputFormat=FXTools.retrieveFormat(formatString);
-						
-				mDefaultOutputPath=defaultOutputNode.getElementsByTagName("path").item(0).getTextContent();
-				
-				//Read Files
-				Element sourceNode=(Element) doc.getElementsByTagName("source").item(0);
-				NodeList fileList=sourceNode.getElementsByTagName("file");
-				for (int i=0;i<fileList.getLength();i++){
-					Element fileNode=(Element) fileList.item(i);
-					FXSourceFile sourceFile=new FXSourceFile(fileNode);
-					sourceFile.convert();
-//					if (false/*!result*/) {
-//						FXTools.LOGGER.warning("converting abort in file:"+fileNode.getAttribute("name"));
-//						return;
-//					}
+				NodeList defaultNodeList= doc.getElementsByTagName("defaults");
+				if (defaultNodeList.getLength()==0) {
+					FXTools.LOGGER.warning("Missing <defaults> tags");
+				}
+				else{
+					Element defaultNode=(Element) defaultNodeList.item(0);
+					NodeList defaultOutputNodeList=defaultNode.getElementsByTagName("output");
+					if(defaultOutputNodeList.getLength()==0){
+						FXTools.LOGGER.warning("Missing <defaults><output> tags.");
+					}
+					else{
+						Element defaultOutputNode=(Element) defaultOutputNodeList.item(0);
+						mDefaultOutputExt=FXTools.formatExt( defaultOutputNode.getElementsByTagName("extension").item(0).getTextContent());
+						mDefaultOutputExtXML=FXTools.formatExt(defaultOutputNode.getElementsByTagName("extension_xml").item(0).getTextContent());
+						String formatString=defaultOutputNode.getElementsByTagName("format").item(0).getTextContent();
+						mDefaultOutputFormat=FXTools.retrieveFormat(formatString);
+								
+						mDefaultOutputPath=defaultOutputNode.getElementsByTagName("path").item(0).getTextContent();
+					}
+					
 				}
 				
 				
+				
+				
+
+				
+				
+				//Read Files
+				NodeList sourceList= doc.getElementsByTagName("source");
+				
+				if(sourceList.getLength() ==0){
+					FXTools.LOGGER.warning("Missing input source files.");
+					return;
+				}
+				else{
+					Element sourceNode=(Element) sourceList.item(0);
+					NodeList fileList=sourceNode.getElementsByTagName("file");
+					for (int i=0;i<fileList.getLength();i++){
+						Element fileNode=(Element) fileList.item(i);
+						//String fileNameString = fileNode.getNodeValue();
+						FXSourceFile sourceFile=new FXSourceFile(fileNode);
+						
+						sourceFile.convert();
+//						if (false/*!result*/) {
+//							FXTools.LOGGER.warning("converting abort in file:"+fileNode.getAttribute("name"));
+//							return;
+//						}
+					}
+				}
 			} catch (SAXException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

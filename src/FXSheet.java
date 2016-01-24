@@ -36,6 +36,8 @@ import org.xml.sax.SAXException;
 
 
 public class FXSheet {
+	static final int cExitErrorInvalidConfig=-1;
+	
 	static final String cKeyOutputPath="outputPath";
 	static final String cKeyOutputExt="extension";
 	static final String cKeyOutputFormat="format";
@@ -54,7 +56,8 @@ public class FXSheet {
 	public String mOutputExt;
 	public TypeOutputFormat mOutputFormat;
 	public String mSheetName;
-	
+	public int mBufferColumn;
+	public int mBufferRow;
 	
 	public FXSheet(String pSheetName, TypeOutputFormat pOutputFormat, String pOutputPath,String pOutputExt ,FXSourceFile pSource ){
 		mHostFile=pSource;
@@ -62,6 +65,7 @@ public class FXSheet {
 		mOutputPath=pOutputPath;
 		mOutputExt=pOutputExt;
 		mOutputFormat=pOutputFormat;
+		
 	}
 	
 	public FXSheet(Element pConfig,FXSourceFile pSource) {
@@ -167,6 +171,7 @@ public class FXSheet {
 			FXTools.LOGGER.fine("Processing sheet:"+sheetXls.getSheetName()+"...");
 			
 			for (int i = Line_ValueBegin; i <= sheetXls.getLastRowNum(); i++) {
+				mBufferRow = i+1;
 				Row thisRow=sheetXls.getRow(i);
 				if (thisRow!=null) {
 					FXTools.LOGGER.fine("----Line:"+(i+1)+"----");
@@ -176,7 +181,7 @@ public class FXSheet {
 						String l_columnString=FXTools.xlsColumnStringFromIndex(j);
 						String l_namePropString=getCellValueString(rowName.getCell(j));
 						String l_valuePropString=getCellValueString(thisRow.getCell(j));
-						
+						mBufferColumn = j;
 						l_valuePropString=l_valuePropString.replaceAll("\n", "");
 						FXTools.LOGGER.finer("Column:"+l_columnString+"..."+getCellValueString(rowDesp.getCell(j))+":"+getCellValueString(rowName.getCell(j)));
 						
@@ -216,7 +221,14 @@ public class FXSheet {
 			if (l_valuePropString=="") {
 				l_valuePropString="0";
 			}
-			lineJsonObject.put(l_namePropString,Integer.valueOf((int) Float.parseFloat(l_valuePropString)) ); 
+			try {
+				Float parsedValue = Float.parseFloat(l_valuePropString);
+				lineJsonObject.put(l_namePropString,Integer.valueOf(Math.round(parsedValue) )); 
+			} catch (Exception e) { 
+				// TODO: handle exception
+				FXTools.LOGGER.warning("Cannot cast '"+l_valuePropString+"' to integer value. [sheet:"+mSheetName+", row:"+mBufferRow+", column:"+FXTools.xlsColumnStringFromIndex(mBufferColumn)+"]");
+				System.exit(cExitErrorInvalidConfig);
+			}
 			break;
 		case 'b':{
 			if (l_valuePropString=="") {
@@ -238,7 +250,14 @@ public class FXSheet {
 			if (l_valuePropString=="") {
 				l_valuePropString="0.0";
 			}
-			lineJsonObject.put(l_namePropString,Float.parseFloat(l_valuePropString)); 
+			try{
+				Float parseValue = Float.parseFloat(l_valuePropString);
+				lineJsonObject.put(l_namePropString,parseValue); 
+			}catch (Exception e){
+				FXTools.LOGGER.warning("Cannot cast '"+l_valuePropString+"' to float value. [sheet:"+mSheetName+", row:"+mBufferRow+", column:"+FXTools.xlsColumnStringFromIndex(mBufferColumn)+"]");
+				System.exit(cExitErrorInvalidConfig);
+			}
+			
 			break;
 		}
 		case 'B':{
@@ -271,7 +290,14 @@ public class FXSheet {
 			String[] arr=l_valuePropString.split(splitString);
 			for (int k = 0; k < arr.length; k++) {
 				if (arr[k]!="") {
-					cellArray.put(Float.parseFloat(arr[k]));
+					try{
+						Float valueFloat = Float.parseFloat(arr[k]);
+						cellArray.put(valueFloat);
+					}
+					catch(Exception e){
+						FXTools.LOGGER.warning("Cannot cast '"+l_valuePropString+"' to float array. [sheet:"+mSheetName+", row:"+mBufferRow+", column:"+FXTools.xlsColumnStringFromIndex(mBufferColumn)+"]");
+						System.exit(cExitErrorInvalidConfig);
+					}
 				}
 			}
 			lineJsonObject.put(l_namePropString,cellArray);
@@ -283,7 +309,13 @@ public class FXSheet {
 			String[] arr=l_valuePropString.split(splitString);
 			for (int k = 0; k < arr.length; k++) {
 				if (arr[k]!="") {
-					cellArray.put(Integer.valueOf((int) Float.parseFloat(arr[k])));
+					try {
+						cellArray.put(Integer.valueOf((int) Float.parseFloat(arr[k])));
+					} catch (Exception e) {
+						FXTools.LOGGER.warning("Cannot cast '"+l_valuePropString+"' to int array. [sheet:"+mSheetName+", row:"+mBufferRow+", column:"+FXTools.xlsColumnStringFromIndex(mBufferColumn)+"]");
+						System.exit(cExitErrorInvalidConfig);
+					}
+					
 				}
 			}
 			lineJsonObject.put(l_namePropString,cellArray);

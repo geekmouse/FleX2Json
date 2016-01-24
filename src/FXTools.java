@@ -117,9 +117,8 @@ public class FXTools extends Formatter{
 	
 	static public TypeInputFile retrieveInputFormat(String pPath){
 		int length=pPath.length();
-		
-		String xlsExtString=(String) pPath.subSequence(length-cExtExcel97.length(), length);
-		String xlsxExtString=(String) pPath.subSequence(length-cExtExcel2007.length(), length);
+		String xlsExtString=(String) pPath.subSequence( Math.max(length-cExtExcel97.length(),0), length);
+		String xlsxExtString=(String) pPath.subSequence(Math.max(length-cExtExcel2007.length(),0), length);
 		if (FXTools.cExtExcel97.equals(xlsExtString) ) {
 			return TypeInputFile.INPUT_TYPE_EXCEL97;
 		}
