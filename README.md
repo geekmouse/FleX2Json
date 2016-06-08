@@ -55,7 +55,7 @@ output/| Directory for output files. Can be changed in `config.xml`
  
 ### The Excel data source structure
 * Both the format Excel 97-2004 (.xls) and Excel 2007 above (.xlsx) are supported in current version.
-* One sheet is converted into one JSON file. The JSON file name is the same with the sheet name. In future versions, it'll allow merging data from different excel sheets into single JSON file with different relationships.
+* One sheet is converted into one JSON file. The JSON file name is the same with the sheet name. In future versions, it'll allow merging data from different excel sheets with different relationships into one single JSON file.
 * Each sheet is considered to be an array of objects whose attributes are defined in columns.
 * The first 3 rows in every column are reserved for necessary information of the attribute. See `Table 2` below.
 
