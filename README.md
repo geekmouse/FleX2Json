@@ -2,13 +2,13 @@
 ## Brief
 FleX2Json is a solution to organize your data with Microsoft Excel and to convert them into JSON/XML files, with a very configable, expandable and  flexible approach. 
 
-There are many projects providing format conversion functions already but we found that most of them are not powerful or flexible enough to meet complex requirement. So we implemented FleX2Json and continually improved it along with our own game projects. Now we decide to open source it to benefit the engineers who need. 
+There are many projects providing format conversion functions already but we found that most of them are not powerful or flexible enough to meet complex requirements. So we developed FleX2Json and continually improved it along with our own game projects. Now we decide to open source it to benefit the engineers who need. 
 
 ## Features
 
 * **Java** based. Run it anywhere.
 * Run **single command** to generate JSON/XML files from multiple sheets from multiple .xls/.xlsx sources.
-* Can **custom the output paths and extensions** for every source file or even every sheet by configuring config.xml.
+* Can **custom the output paths and extensions** for every source file or even every sheet by modifying config.xml.
 * **Auto-check data types** for every attribute if is needed.
 * Flexibly insert human-readable comment in the excel sheets for every object and attribute.
 * Support 3-layers JSON structure. However in current version, only the array of basic types is supported in the 3rd layer.
@@ -20,14 +20,14 @@ There are many projects providing format conversion functions already but we fou
  
 1. Update your Java to the latest version from [HERE](https://java.com/en/download/).
 2. Download latest release [FleX2Json.zip](https://github.com/geekmouse/FleX2Json/releases) to any directory (eg. `YourPath/`) 
-3. In Terminal or any commandline tools, enter `YourPath/FleX2Json`, run `java -jar FleX2Json.jar`. Work done. The JSON files generated from **SampleData.xls** and **SampleGame.xls** can be found under `YourPath/output`. 
+3. In Terminal or any commandline tools, redirect to `YourPath/FleX2Json`, run `java -jar FleX2Json.jar`. Work done. The JSON files generated from **SampleData.xls** and **SampleGame.xls** can be found under `YourPath/output`. 
 
 There are detailed instructions of each field in`SampleData.xls::SimpleTest` and `config.xml`. Edit the values and repeat step 3 to compare the results, and you'll quickly catch how to use it.
 
 For complete introduction of how to use FleX2Json, please continue reading.
 
-### Use of parametrizing mode
-If there are zero parameter when running FleX2Json, it will read complex configurations from `config.xml`. However, you can also use 
+### Usage of parametrizing mode
+When running without any parameter, FleX2Json will read configurations from `config.xml`. Otherwise, you can use 
 **parametrizing mode** to convert single excel sheet by setting parameters in command lines. The following parameters are supported above v0.92 and you can also run `java -jar FleX2Json.jar -h` for more details.
 
 **Table 0:** Parameters in parametrizing mode
@@ -42,7 +42,7 @@ x	|Output file extension|Optional|Any string you need |if f==xml, x='.xml', else
 h	|Show help list|Optional
 
 
-### File structure of FleX2Json
+### Key files of FleX2Json
 
 **Table 1:** File list and functions of the standalone FleX2Json
 
